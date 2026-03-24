@@ -1,74 +1,93 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>학생 목록</title>
+
 <style>
-	body {
-		margin : 30px;
-	}
-	table, th, tr, td {
-		border : 1px solid black;
-		padding : 5px 10px;
-		border-collapse: collapse;
-		text-align: center;
-	}
-	.search-area {
-		margin : 10px 0px;
-	}
+    body {
+        margin : 30px;
+    }
+    table, th, tr, td {
+        border : 1px solid black;
+        padding : 5px 10px;
+        border-collapse: collapse;
+        text-align: center;
+    }
+    .search-area {
+        margin : 10px 0px;
+    }
 </style>
 </head>
 <body>
-<form action="board-list.jsp">
-	<%@ include file="../../../db.jsp" %>
-	<% 
-		String keyword = request.getParameter("keyword");	
-	%>
-	<!-- board-list.jsp -->
-	<div class="search-area">
-		<label>검색어 : 
-		<input name="keyword" 
-			   value="<%= keyword != null ? keyword : ""  %>"></label>
-		<input type="submit" value="검색">
-	</div>
-	<table>
-		<tr>
-			<th>학번</th>
-			<th>이름</th>
-			<th>학과</th>
-			<th>학년</th>
-		</tr>
-	<%	
-		String sql=SELECT * FROM STUDENT;
-		 ResultSet rs = stmt.executeQuery(sql);
-		while(rs.next()){ 
-	%>
-			<tr>
-				<td><%= rs.getString("STU_NO") %></td>
-				<td><%= rs.getString("STU_NAME") %></td>
-				<td><%= rs.getString("STU_DEPT") %></td>
-				<td><%= rs.getString("STU_GRADE") %></td>
-			</tr>	
-	 <%		
-		}
-		
-	%>
-	</table>
-	<div>
-		<input type="button" value="학생추가" onclick="fnAdd()">
-	</div>
+<%@ include file="../../../db.jsp" %>
+
+<%
+    // 파라미터 받기
+    String dept = request.getParameter("kind");
+    dept = (dept != null) ? dept : "";
+%>
+
+<form action="stu-list.jsp" name="form">
+
+<div class="search-area">
+    <select name="kind" onchange="fnkind()">
+        <option value="">:: 전체 ::</option>
+        <option value="기계" <%= dept.equals("기계") ? "selected" : "" %>>기계</option>
+        <option value="컴퓨터정보" <%= dept.equals("컴퓨터정보") ? "selected" : "" %>>컴퓨터정보</option>
+        <option value="전기전자" <%= dept.equals("전기전자") ? "selected" : "" %>>전기전자</option>
+    </select>
+</div>
+
+<table>
+    <tr>
+        <th>학번</th>
+        <th>이름</th>
+        <th>학과</th>
+        <th>학년</th>
+    </tr>
+
+<%
+    // SQL 작성
+    String sql = "SELECT * FROM STUDENT WHERE 1=1";
+
+    if(!dept.equals("")){
+        sql += " AND STU_DEPT='" + dept + "'";
+    }
+
+    ResultSet rs = stmt.executeQuery(sql);
+
+    while(rs.next()){
+%>
+    <tr>
+        <td><%= rs.getString("STU_NO") %></td>
+        <td><%= rs.getString("STU_NAME") %></td>
+        <td><%= rs.getString("STU_DEPT") %></td>
+        <td><%= rs.getString("STU_GRADE") %></td>
+    </tr>
+<%
+    }
+%>
+
+</table>
+
+<div style="margin-top:10px;">
+    <a href="stu-add.jsp">
+        <input type="button" value="학생추가">
+    </a>
+</div>
+
 </form>
+
+<script>
+function fnkind(){
+    document.form.submit();
+}
+</script>
+
 </body>
 </html>
-<script>
-	function fnAdd(){
-		// board-add.jsp
-		location.href = "stu-add.jsp";
-	}
-	
-	function fnView(boardNo){
-		location.href = "board-view.jsp?boardNo=" + boardNo;
-	}
-</script>

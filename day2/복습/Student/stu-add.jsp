@@ -27,28 +27,23 @@
 </style>
 </head>
 <body>
-	<form action="stu-add-result.jsp" name="form">
+	<form action="stu-add-result.jsp">
 		<table>
-			<tr>
-				<th>학번</th>
-				<td><input type="text" name="stuinfo"></td>
-			</tr>
+			<div>
+				
+				<label>학번:</label><input type="text" name="stuNo"></label>
+			</div>
 			
 			
-			<tr>
-				<th>이름</th>
-				<td><input type="text" name="stuinfo"></td>
-			</tr>
+			<div>
+				
+				<label>이름:<input type="text" name="stuName"></label>
+			</div>
 			
-			<tr>
-				<th>학과</th>
-				<td><input type="text" name="stuinfo"></td>
-			</tr>
+			<div>
 			
-			<tr>
-				<th>학년</th>
-				<td><input type="text" name="stuinfo"></td>
-			</tr>
+				<label>학과:<input type="text" name="stuDept"></label>
+			</div>
 			
 			
 		

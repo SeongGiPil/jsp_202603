@@ -33,12 +33,22 @@
         body{
         margin:30px;
     }
+    .Line{
+    	margin:30px 0px;
+    	border-bottom:1px solid #ddd;
+    }
+    
+    .comment-area{
+    	margin-bottom:
+    }
     </style>
 <body>
 <form action=" "name="form">
 <table>
-<form>
+<form action=" " name="form">
 <%
+	String sessionId=(String)session.getAttribute("sessionId");
+	String sessionRole = (String) session.getAttribute("sessionRole");
 	String boardNo=request.getParameter("boardNo");
 
 %>
@@ -47,11 +57,13 @@
 	<%
 	String sql ="UPDATE TBL_BOARD SET CNT = CNT + 1 "
 			+ "WHERE BOARDNO = " + boardNo;
-			stmt.executeUpdate(sql);
+	stmt.executeUpdate(sql);
 
-		sql = "SELECT * FROM TBL_BOARD WHERE BOARDNO = " + boardNo;
+		sql = "SELECT * FROM TBL_BOARD WHERE BOARDNO = " + boardNo
+				+"ORDER BY CDATE ASC"
 	ResultSet rs = stmt.executeQuery(sql);
 	if(rs.next()){	
+		userId=rs.getString("USERID");
 %>
 	<tr>
 			<th>제목</th>
@@ -78,12 +90,47 @@
 	%>
 </table>
 <div class="btn-area">
+<%
+	if(userId.equals(sessionId)|| sessionRole.equals("A")){
+%>
+	<input type="button" value="수정" onclick="fnEdit()">
+	<input type="button" value="삭제" onclick="fnRemove()">
+	
+	
+<% 		
+	}
+%>
 	<input type="button" value="수정" onclick="fnEdit()">
 	<input type="button" value="삭제" onclick="fnRemove()">
 	<input type="button" value="되돌아가기">
 	
+	
 
 </div>
+<div class="Line">
+</div>
+<div class="comment-area">
+<table>
+<%
+	sql="SELECT * FROM TBL_COMMENT WHERE BOARDNO="+boardNo;
+	rs=stmt.executeQuery(sql);
+	while(rs.next()){
+%>		
+	<tr>
+		<th><%=rs.getString("USERID") %></th>
+		<td><%=rs.getString("CONTENTS") %></td>
+	</tr>
+<% 	
+	}
+%>
+</table>
+	<table>
+	<th>댓글등록</th>
+	<td style="width:100px;"><textarea cols="70"rows="5"></textarea></td>
+	<td style="width:50px;"><input type="button" value="등록"></td>
+		<input type="button" value="등록"
+	</table>	
+</div>	
 </body>
 </form>
 
@@ -102,6 +149,11 @@
 		form.action = "board-remove.jsp";
 		form.submit(); */
 		
+	}
+	function fnCommantAdd(){
+		let form=document.form;
+		form.action="board-comment-add.jsp";
+		form.submit();
 	}
 	
 </script>
