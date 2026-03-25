@@ -8,23 +8,18 @@
 </head>
 <body>
 	<!-- 삭제 직접 구현 -->
-<%@ include file="../../db.jsp" %>
-<%
-	String boardNo=request.getParameter("boardNo");
-	String sql="DELETE FROM TBL_BOARD WHERE BOARDNDNO="+boardNo;
-	
-	
-	int result=stmt.executeUpdate(sql);
-	
-	if(result>0){
-		out.println("삭제되었습니다");
+	<%@ include file="../../db.jsp" %>
+	<%
+		String boardNo = request.getParameter("boardNo");
+		String sql = "DELETE FROM TBL_BOARD WHERE BOARDNO = " + boardNo;
 		
-	}else{
-		out.println("실패했습니다");
-	}
-%>
-<a href="board-list.jsp"><button>되돌아가기</button></a>
-	
-
+		int result = stmt.executeUpdate(sql);
+		if(result > 0 ){
+			out.println("삭제되었습니다!");
+		} else {
+			out.println("실패했습니다.!");
+		}
+	%>
+	<a href="board-list.jsp"><button>되돌아가기</button></a>
 </body>
 </html>

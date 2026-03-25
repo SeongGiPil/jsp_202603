@@ -8,7 +8,7 @@
 <style>
 	#container{
 		width : 800px;
-		margin : 10px auto;
+		margin : 80px auto;
 	}
 	table{
 		width : 100%;
@@ -44,6 +44,18 @@
 		font-weight: bold;
 		color : black;
 	}
+	.title{
+		text-align:left;
+		width:400px;
+	}
+	.comment-cnt{
+		font-weight:bold;
+		color:blue;
+	}
+	.search-area{
+	margin=10px 0px;
+	text-align:center;
+	}
 </style>
 </head>
 <body>
@@ -55,8 +67,16 @@
 			if(request.getParameter("pageSize") != null){
 				pageSize = Integer.parseInt(request.getParameter("pageSize"));
 			}
-			
+			String keyword=request.getParameter("keyword");
 		%>
+		<div class="search-area">
+		<label>검색어 : 
+		<input name="keyword" 
+			 value="<%= keyword != null ? keyword : ""  %>"></label>
+		<input type="submit" value="검색">
+		</div>
+		
+		
 		<div class="select-area">
 			<select name="pageSize" onchange="fnPageSize()">
 				<%
@@ -77,7 +97,12 @@
 				<th>조회수</th>
 				<th>작성일</th>
 			</tr>
-		<%	
+			<%
+			String cntSql = "SELECT COUNT(*) AS TOTAL FROM TBL_BOARD WHERE 1=1 ";
+			if(keyword != null && !keyword.trim().equals("")){
+			    cntSql += "AND TITLE LIKE '%" + keyword.trim() + "%' ";
+				}
+			
 			
 			ResultSet rsCnt = stmt.executeQuery(
 				"SELECT COUNT(*) AS TOTAL FROM TBL_BOARD "
@@ -92,8 +117,21 @@
 			}
 			int offset = (currentPage - 1) * pageSize;
 			
-			String sql = "SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') AS CDATE "
-						+ "FROM TBL_BOARD B WHERE 1=1 ";
+			String sql =
+				    "SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') AS CDATE, NVL(COMMENT_CNT, 0) AS COMMENT_CNT " +
+				    "FROM TBL_BOARD B " +
+				    "LEFT JOIN ( " +
+				    "    SELECT COUNT(*) AS COMMENT_CNT, BOARDNO " +
+				    "    FROM TBL_COMMENT " +
+				    "    GROUP BY BOARDNO " +
+				    ") T ON B.BOARDNO = T.BOARDNO " +
+				    "WHERE 1=1 ";
+			if(keyword!=null){
+				sql +="AND TITLE LIKE '%"+keyword+"%' ";
+			}
+					
+					
+					
 			if(true){
 				sql += "ORDER BY BOARDNO ASC ";	
 			}
@@ -101,12 +139,17 @@
 				sql += "OFFSET " + offset + " ROWS FETCH NEXT " +  pageSize  + " ROWS ONLY";
 			}
 			
+			
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()){
 		%>
 				<tr>
 					<td><%= rs.getString("BOARDNO") %></td>
-					<td><%= rs.getString("TITLE") %></td>
+					<td><%= rs.getString("TITLE") %>
+					<% if(rs.getString("COMMENT_CNT")){%>
+					<span class="comment-cnt">[<%=rs.getString("COMMENT_CNT")!=0%>]</span>
+					<% } %>
+				</td>
 					<td><%= rs.getString("USERID") %></td>
 					<td><%= rs.getString("CNT") %></td>
 					<td><%= rs.getString("CDATE") %></td>
@@ -116,20 +159,21 @@
 		%>
 		</table>
 		<div class="paging-area">
-			<%if(currentPage!=1){ %>
-				<a href="?page=<%=currentPage-1%>&pageSize=<%=pageSize %>">◀</a>
-			<%} %>
+			<% if(currentPage != 1){ %>
+				<a href="?page=<%= currentPage-1 %>&pageSize=<%= pageSize %>&keyword=<%=keyword %>">◀</a>
+			<% } %>
 			
 			<%
 				for(int i=1; i<=pageList; i++){
 			%>
-				
+				<a href="?page=<%= i %>&pageSize=<%= pageSize %>&keyword=<%=keyword %> >" class="<%= currentPage == i ? "active" : "" %>"> <%= i %> </a>
 			<%		
 				}
 			%>
+			
 			<% if(currentPage != pageList){ %>
-			<a href="?page=<%=currentPage+1%>&pageSize=<%=pageSize %>">▶</a>
-				<% } %>
+				<a href="?page=<%= currentPage+1 %>&pageSize=<%= pageSize %>&keyword=<%=keyword %>">▶</a>
+			<% } %>
 		</div>
 	</form>
 </div>
@@ -139,6 +183,4 @@
 	function fnPageSize(){
 		document.form.submit();
 	}
-	
-	
 </script>
